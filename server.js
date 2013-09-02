@@ -38,7 +38,7 @@ child.stdout.on("data", function (data) {
     var loginObj = new alimama.aliLogin('http://u.alimama.com/union/spread/selfservice/taokeSearch.htm', user, password);
     loginObj.getTbk();
 
-    var service = server.listen('0.0.0.0:8080', function(request, response) {
+    var service = server.listen('0.0.0.0:80', function(request, response) {
         console.log(request.url);
         var uri = request.url;
         var app = uri.split('?')[0];

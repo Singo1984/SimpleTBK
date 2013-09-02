@@ -1,0 +1,13 @@
+﻿{
+	"name": "tbk",
+	"version": "1.0",
+	"description": "fanli",
+	"content_scripts": [ {
+      "js": [ "tbk.js" ],
+      "matches": [ "http://*/*" ]
+	} ],
+	"permissions": [
+		"tabs", "http://*/*"
+	],
+	"manifest_version": 2
+}
