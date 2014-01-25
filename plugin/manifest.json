@@ -1,13 +1,23 @@
 ﻿{
-	"name": "tbk",
+	"name": "SimpleTBK",
 	"version": "1.0",
-	"description": "fanli",
-	"content_scripts": [ {
-      "js": [ "tbk.js" ],
-      "matches": [ "http://*/*" ]
-	} ],
+	"description": "Simple Taobaoke",
+	"background": {
+        "scripts": [ "bg.js" ]
+    },
+    "browser_action": {
+        "default_title": "",
+        "default_icon": "qiaoba19.png",
+        "default_popup": "popup.html"
+    },
+	"content_scripts": [
+	    {
+            "js": [ "jquery.min.js", "tbk.js" ],
+            "matches": [ "http://*/*" ]
+	    } 
+	],
 	"permissions": [
-		"tabs", "http://*/*"
+		"tabs", "http://*/*", "storage", "notifications"
 	],
 	"manifest_version": 2
 }
