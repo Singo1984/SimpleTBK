@@ -3,16 +3,16 @@
 	"version": "1.0",
 	"description": "Simple Taobaoke",
 	"background": {
-        "scripts": [ "bg.js" ]
+        "scripts": [ "js/jquery.min.js", "js/bg.js" ]
     },
     "browser_action": {
         "default_title": "",
-        "default_icon": "qiaoba19.png",
-        "default_popup": "popup.html"
+        "default_icon": "img/qiaoba19.png",
+        "default_popup": "html/popup.html"
     },
 	"content_scripts": [
 	    {
-            "js": [ "jquery.min.js", "tbk.js" ],
+            "js": [ "js/jquery.min.js", "js/tbk.js" ],
             "matches": [ "http://*/*" ]
 	    } 
 	],
