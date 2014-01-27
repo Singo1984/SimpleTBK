@@ -35,7 +35,8 @@ var user = system.stdin.readLine();
 var child = child_process.spawn("python",  ["./password.py"]);
 child.stdout.on("data", function (data) {
     var password = data.replace('\n', '');
-    var loginObj = new alimama.aliLogin('http://u.alimama.com/union/spread/selfservice/taokeSearch.htm', user, password);
+    var url = "http://pub.alimama.com/index.htm?spm=0.0.0.0.w2ZucB#!/promo/self/items";
+    var loginObj = new alimama.aliLogin(url, user, password);
     loginObj.getTbk();
 
     var service = server.listen('0.0.0.0:80', function(request, response) {

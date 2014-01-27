@@ -54,7 +54,7 @@ function onQueryPage() {
     console.log('enter query page');
     this.canQuery = true;
     if (this.queryCTX.itemId) {
-        setTimeout(this.doQuery.bind(this), 2000);
+        this.page.open(this.url, this.doQuery.bind(this));
     }
 }
 
@@ -90,17 +90,22 @@ function onCodeArea(status) {
     }
 }
 
+function onPopUp() {
+    this.click("a[mx-owner='vf-dialog']", '#vf-dialog');
+    this.waitFor('#magix_vf_code', null, onCodeArea.bind(this), generalTimeout.bind(this), 1000);
+}
+
 function onResultPage() {
-    console.log('on query page');
+    console.log('on result page');
     console.log('query: ' + this.getAttr("#q", 'value'));
     var commission_rate = this.page.evaluate(function () {
-        var tr = $('#J_listMainTable').find('tbody').find('tr:first');
+        var tr = $('#J_item_list').find('tbody').find('tr:first');
         if (tr.length > 0) {
             var td = tr.find('td');
             var ret = '';
             td.each(function (index) {
-                if (index == 4) {
-                    ret = $(this).html();
+                if (index == 3) {
+                    ret = $(this).find('span').html();
                 }
             });
             return ret;
@@ -115,8 +120,11 @@ function onResultPage() {
             commission_rate: (commission_rate.split('%')[0]) * 100
         }
     }
-    var query_url = "http://u.alimama.com/union/spread/common/allCode.htm?specialType=item&auction_id=" + this.queryCTX.itemId;
-    this.page.open(query_url, onCodeArea.bind(this));
+    this.click('#J_item_list.btn');
+    this.waitFor('#vf-dialog', onPopUp.bind(this), generalTimeout.bind(this), 1000);
+    //var query_url = "http://u.alimama.com/union/spread/common/allCode.htm?specialType=item&auction_id=" + this.queryCTX.itemId;
+    //this.page.open(query_url, onCodeArea.bind(this));
+
 }
 
 exports.aliLogin = function(url, user, password) {
@@ -126,7 +134,7 @@ exports.aliLogin = function(url, user, password) {
     this.page = require('webpage').create();
     this.canQuery = false;
     this.page.viewportSize = { width: 1360, height: 768 };
-    this.page.settings.userAgent = 'Mozilla/5.0 (Unknown; Linux x86_64) AppleWebKit/534.34 (KHTML, like Gecko) Safari/534.34';
+    this.page.settings.userAgent = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.57 Safari/537.17';
 };
 
 exports.aliLogin.prototype = {
@@ -257,7 +265,7 @@ exports.aliLogin.prototype = {
             return $(selector).html(val);
         }, selector, val);
     },
-    fillUserPass: function(then, param) {
+    fillUserPass: function() {
         if (this.getAttr('#TPL_username_1', 'value') != '') {
             this.setAttr('#TPL_username_1', 'value', '');
         }
@@ -265,7 +273,12 @@ exports.aliLogin.prototype = {
         console.log('user: ' + this.getAttr('#TPL_username_1', 'value'));
         this.fillContent('#TPL_password_1', null, this.password);
         //console.log('password: ' + this.getAttr('#TPL_password_1', 'value'));
-        then(param);
+        //then(param);
+        this.injectJQuery();
+        //this.page.evaluate(function () {
+        //    $('#J_SubmitStatic').click();
+        //});
+        this.click('#J_SubmitStatic');
     },
     doLogin: function(loginUrl) {
         this.page.open(loginUrl, function(status) {
@@ -275,8 +288,9 @@ exports.aliLogin.prototype = {
                 return ;
             }
             this.injectJQuery();
-            setTimeout(this.fillUserPass.bind(this), 500, this.click.bind(this), '#J_SubmitStatic');
-            this.waitFor('#J_search', null, onQueryPage.bind(this), generalTimeout.bind(this), 20000);
+            setTimeout(this.fillUserPass.bind(this), 1000);
+            //setTimeout(this.fillUserPass.bind(this), 1000, this.click.bind(this), ['#J_SubmitStatic', null, [680, 145]]);
+            this.waitFor('#magix_vf_root', null, onQueryPage.bind(this), generalTimeout.bind(this), 20000);
             
         }.bind(this));
     },
@@ -284,7 +298,7 @@ exports.aliLogin.prototype = {
         // 1: login page, 0: query page, -1: unknow page
         this.injectJQuery();
         return this.page.evaluate(function() {
-            if ($('#J_search').length > 0) {
+            if ($('#q').length > 0) {
                return 0;
             } else if ($('#content').find('iframe').length > 0) {
                return 1;
@@ -295,11 +309,11 @@ exports.aliLogin.prototype = {
     },
     doQuery: function() {
         this.injectJQuery();
-        this.setAttr("input[name='searchType']", 'value', '3');
-        this.setAttr("#q", 'searchtype', '3');
+        //this.setAttr("input[name='searchType']", 'value', '3');
+        //this.setAttr("#q", 'searchtype', '3');
         this.setAttr("#q", 'value', 'id=' + this.queryCTX.itemId);
-        setTimeout(this.click.bind(this), 1000, 'a.btn');
-        this.waitFor('#J_listMainTable', null, onResultPage.bind(this), generalTimeout.bind(this), 10000);
+        setTimeout(this.click.bind(this), 1000, 'a.search-btn');
+        this.waitFor('#J_item_list', null, onResultPage.bind(this), generalTimeout.bind(this), 10000);
     },
     getTbk: function(itemId, cb, param) {
         this.queryCTX = {
