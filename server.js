@@ -30,13 +30,13 @@ function handleTbk (response, result) {
     response.close();
 }
 
-system.stdout.write('username: ');
-var user = system.stdin.readLine();
-var child = child_process.spawn("python",  ["./password.py"]);
-child.stdout.on("data", function (data) {
-    var password = data.replace('\n', '');
+//system.stdout.write('username: ');
+//var user = system.stdin.readLine();
+//var child = child_process.spawn("python",  ["./password.py"]);
+//child.stdout.on("data", function (data) {
+    //var password = data.replace('\n', '');
     var url = "http://pub.alimama.com/index.htm?spm=0.0.0.0.w2ZucB#!/promo/self/items";
-    var loginObj = new alimama.aliLogin(url, user, password);
+    var loginObj = new alimama.aliLogin(url, '', '');
     loginObj.getTbk();
 
     var service = server.listen('0.0.0.0:80', function(request, response) {
@@ -52,5 +52,5 @@ child.stdout.on("data", function (data) {
             return404(request, response)
         }
     });
-});
+//});
 

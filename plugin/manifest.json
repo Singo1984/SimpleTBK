@@ -17,7 +17,12 @@
 	    } 
 	],
 	"permissions": [
-		"tabs", "http://*/*", "storage", "notifications"
+		"tabs", 
+		"http://*/*", 
+		"storage", 
+		"notifications",
+		"cookies",
+		"https://*/*"
 	],
 	"manifest_version": 2
 }
