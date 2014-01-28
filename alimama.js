@@ -22,10 +22,10 @@ Function.prototype.delay = function() {
     return delayFun;
 }
 
-function enterQueryPage(status) {
-    console.log(new Date().getTime() + ': enter enterQueryPage');
+function enterLoginPage(status) {
+    console.log(new Date().getTime() + ': enter enterLoginPage');
     if (status != 'success') {
-        console.log('get url: ' + this.url + ' failed');
+        console.log('get url: ' + this.loginURL + ' failed');
         this.returnResult({error: -3});
         return ;
     }
@@ -39,23 +39,28 @@ function enterQueryPage(status) {
         this.doLogin(loginUrl);
     } else if(checkLogin == 0){
         console.log('enter query page');
-        this.canQuery = true;
+        var token = false;
+        var ts = false;
         if (this.queryCTX.itemId) {
-            setTimeout(this.doQuery.bind(this), 100);
+            for (var i = 0; i < this.page.cookies.length; i++) {
+                if (this.page.cookies[i].name == '_tb_token_') {
+                    this.canQuery = true;
+                    var token = this.page.cookies[i].value;
+                    var ts = new Date().getTime();
+                }
+            }
+            if (this.canQuery && token && ts) {
+                this.doQuery(token, ts, this.queryCTX.itemId);
+            } else {
+                console.log('can not get token');
+                this.returnResult({error: -5});
+            }
         }
     } else {
         console.log('enter unkonw page, update your app');
         this.returnResult({error: -2});
     }
     return ;
-}
-
-function onQueryPage() {
-    console.log('enter query page');
-    this.canQuery = true;
-    if (this.queryCTX.itemId) {
-        this.page.open(this.url, this.doQuery.bind(this));
-    }
 }
 
 function generalTimeout() {
@@ -66,6 +71,56 @@ function generalTimeout() {
     //console.log('search type: ' + this.getAttr("input[name='searchType']", 'value'));
     //console.log('query: ' + this.getAttr("#q", 'value'));
     this.returnResult({error: -1});
+}
+
+function getAuctionCode() {
+    if (status != 'success') {
+        console.log('get url: ' + this.page.url + ' failed');
+        this.returnResult({error: -7});
+        return ;
+    }
+    var auctionCode = this.page.content;
+    console.log(this.page.content);
+    var auctionCodeObj = JSON.stringify(auctionCode);
+    if(auctionCodeObj &&
+            auctionCodeObj.data &&
+            auctionCodeObj.data.clickUrl) {
+        this.queryCTX.result['data']['click_url'] = auctionCodeObj.data.clickUrl;
+        console.log('click_url: ' + this.queryCTX.result['data']['click_url']);
+        this.returnResult(this.queryCTX.result);
+    } else {
+        this.returnResult({error: -8});
+    }
+}
+
+function getSearchAuctionList() {
+    if (status != 'success') {
+        console.log('get url: ' + this.page.url + ' failed');
+        this.returnResult({error: -3});
+        return ;
+    }
+    var searchAuctionList = this.page.content;
+    console.log(this.page.content);
+    var searchAuctionListObj = JSON.stringify(searchAuctionList);
+    if (searchAuctionListObj && 
+            searchAuctionListObj.data && 
+            searchAuctionListObj.data.pagelist && 
+            searchAuctionListObj.data.pagelist.length == 1) {
+        var commissionRatePercent = searchAuctionListObj.data.pagelist[0].commissionRatePercent;
+        console.log(commissionRatePercent);
+        this.queryCTX.result = {
+            error: 0,
+            data: {
+                commission_rate: commissionRatePercent
+            }
+        }
+        var auctionCodeURL = this.getAuctionCodeURL;
+        auctionCodeURL += '?auctionid=' + this.queryCTX.itemId + '&adzoneid=' + this.adzoneid;
+        auctionCodeURL += '&siteid=' + this.siteid + '&t=' + new Date().getTime() + '&_tb_token_=' + this.queryCTX.token;
+        this.page.open(auctionCodeURL, getAuctionCode.bind(this));
+    } else {
+        this.returnResult({error: -6});
+    }
 }
 
 function onCodeAreaError(msg, trace) {
@@ -127,8 +182,12 @@ function onResultPage() {
 
 }
 
-exports.aliLogin = function(url, user, password) {
-    this.url = url;
+exports.aliLogin = function(loginURL, user, password) {
+    this.loginURL = loginURL;
+    this.searchAuctionListURL = 'http://pub.alimama.com/pubauc/searchAuctionList.json';
+    this.getAuctionCodeURL = 'http://pub.alimama.com/common/code/getAuctionCode.json';
+    this.adzoneid=15964722;
+    this.siteid=5312357;
     this.user = user;
     this.password = password;
     this.page = require('webpage').create();
@@ -288,9 +347,9 @@ exports.aliLogin.prototype = {
                 return ;
             }
             this.injectJQuery();
-            setTimeout(this.fillUserPass.bind(this), 1000);
+            setTimeout(this.fillUserPass.bind(this), 500);
             //setTimeout(this.fillUserPass.bind(this), 1000, this.click.bind(this), ['#J_SubmitStatic', null, [680, 145]]);
-            this.waitFor('#magix_vf_root', null, onQueryPage.bind(this), generalTimeout.bind(this), 20000);
+            this.waitFor('#magix_vf_root', null, enterLoginPage.bind(this), generalTimeout.bind(this), 20000);
             
         }.bind(this));
     },
@@ -307,13 +366,18 @@ exports.aliLogin.prototype = {
             }
         });
     },
-    doQuery: function() {
-        this.injectJQuery();
+    doQuery: function(token, ts, itemid) {
+        //this.injectJQuery();
         //this.setAttr("input[name='searchType']", 'value', '3');
         //this.setAttr("#q", 'searchtype', '3');
-        this.setAttr("#q", 'value', 'id=' + this.queryCTX.itemId);
-        setTimeout(this.click.bind(this), 1000, 'a.search-btn');
-        this.waitFor('#J_item_list', null, onResultPage.bind(this), generalTimeout.bind(this), 10000);
+        //this.setAttr("#q", 'value', 'id=' + this.queryCTX.itemId);
+        //setTimeout(this.click.bind(this), 1000, 'a.search-btn');
+        //this.waitFor('#J_item_list', null, onResultPage.bind(this), generalTimeout.bind(this), 10000);
+        var searchAuctionListURL = this.searchAuctionListURL;
+        searchAuctionListURL += '?q=id%3D' + itemid + '&t=' + ts + '&_tb_token_=' + token;
+        console.log(searchAuctionListURL);
+        this.queryCTX.token = token;
+        this.page.open(searchAuctionListURL, getSearchAuctionList.bind(this))
     },
     getTbk: function(itemId, cb, param) {
         this.queryCTX = {
@@ -321,7 +385,7 @@ exports.aliLogin.prototype = {
             param: param,
             callback: cb
         };
-        console.log(new Date().getTime() + ': try to open url ' + this.url);
-        this.page.open(this.url, enterQueryPage.bind(this));
+        console.log(new Date().getTime() + ': try to open url ' + this.loginURL);
+        this.page.open(this.loginURL, enterLoginPage.bind(this));
     }
 };
