@@ -22,7 +22,7 @@ Rebate = {
         if(item_id === false) {
             return;
         }
-        chrome.runtime.sendMessage({method: "getAuction"}, function(obj) {
+        chrome.runtime.sendMessage({method: "getAuction", itemid: item_id}, function(obj) {
             Rebate.initEasyDarg(obj);
         });
     },
@@ -39,10 +39,8 @@ Rebate = {
         var c_rate = obj.commission_rate == null ? '0' :(obj.commission_rate/100).toFixed(2);
         var html = '<a href="' + c_url + '"> 返利' + c_rate + '%</a>';
         $('#dragbox').html(html);
-        $('#dragbox').attr('style','background-color: yellow; padding: 15px; border: 2px solid orange; width: 180px; cursor: move; position: absolute; z-index: 10000; top: 250px; left: ' + width + 'px;');
-        $.getScript("http://code.jquery.com/ui/1.9.1/jquery-ui.js", function(){
-            $("#dragbox").draggable();
-        });
+        $('#dragbox').attr('style','background-color: yellow; padding: 15px; border: 2px solid orange; width: 180px; cursor: move; position: absolute; z-index: 100000000; top: 250px; left: ' + width + 'px;');
+        $("#dragbox").draggable();
     },
     getItemId: function(url, key) {
         var itemIDPattern = {

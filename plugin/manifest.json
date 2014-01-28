@@ -3,7 +3,7 @@
 	"version": "1.0",
 	"description": "Simple Taobaoke",
 	"background": {
-        "scripts": [ "js/jquery.min.js", "js/bg.js" ]
+        "scripts": [ "js/jquery-1.9.1.min.js", "js/bg.js" ]
     },
     "browser_action": {
         "default_title": "",
@@ -12,9 +12,12 @@
     },
 	"content_scripts": [
 	    {
-            "js": [ "js/jquery.min.js", "js/tbk.js" ],
+            "js": [ "js/jquery-1.9.1.min.js", "js/jquery-ui.min.js", "js/tbk.js" ],
             "matches": [ "http://*/*" ]
 	    } 
+	],
+	"web_accessible_resources": [
+	    "js/jquery.min.map"
 	],
 	"permissions": [
 		"tabs", 
