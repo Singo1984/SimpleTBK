@@ -67,17 +67,20 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             // response
             var respObj = {}
             if (auctionListObj &&
-                    auctionListObj.data && 
-                    auctionListObj.data.pagelist && 
+                    auctionListObj.data) {
+                if (auctionListObj.data.pagelist && 
                     auctionListObj.data.pagelist.length == 1) {
-                var commissionRatePercent = auctionListObj.data.pagelist[0].commissionRatePercent;
-                if (auctionCodeObj.data && auctionCodeObj.data.clickUrl) {
-                    var clickUrl = auctionCodeObj.data.clickUrl;
-                    respObj.click_url = clickUrl;
-                    respObj.commission_rate = commissionRatePercent * 100;
-                    sendResponse(respObj);
+                    var commissionRatePercent = auctionListObj.data.pagelist[0].commissionRatePercent;
+                    if (auctionCodeObj.data && auctionCodeObj.data.clickUrl) {
+                        var clickUrl = auctionCodeObj.data.clickUrl;
+                        respObj.click_url = clickUrl;
+                        respObj.commission_rate = commissionRatePercent * 100;
+                        sendResponse(respObj);
+                    } else {
+                        genNotify('', 'Auction Code Error', 'Please login alimama, and create your own adzones');
+                    }
                 } else {
-                    genNotify('', 'Auction Code Error', 'Please login alimama, and create your own adzones');
+                    sendResponse({});
                 }
             } else {
                 genNotify('', 'Get Auction List Error', 'Please login alimama, and create your own adzones');
@@ -85,7 +88,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             
         } else {
             genNotify('', 'No AdZone Found', 'Please login alimama, and create your own adzones');
-            sendResponse({});
         }
     }
 });

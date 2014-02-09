@@ -10,12 +10,18 @@ function funcCreator() {
 }
 
 function getCookie(url, name, _onGetTbToken, _drawPopup) {
+    var findCookie = false;
     chrome.cookies.get({url: url, name: name}, function(cookie) {
         if (cookie) {
             console.log("get cookie for " + url + "." + name + cookie.value);
+            findCookie = true;
             _onGetTbToken(cookie.value, _drawPopup);
         }
     });
+    if (!findCookie) {
+        _drawPopup([]);
+        //genNotify('', 'No Cookie Found', 'Please login alimama');
+    }
 }
 
 function genNotify(icon, body, msg) {
@@ -65,6 +71,7 @@ function onGetTbToken(tbToken, _drawPopup) {
 function drawPopup(adzones) {
     var currentZone = localStorage['CurrentZone'];
     var menu = $('.menu');
+    menu.empty();
     for (var i = 0; i < adzones.length; i++) {
         for(var j = 0; j < adzones[i].sub.length; j++) {
             var zonename = adzones[i].name + '_' + adzones[i].sub[j].name;
@@ -77,7 +84,7 @@ function drawPopup(adzones) {
                     localStorage['SelectedSiteId'] = adzones[i].sub[j].id;
                 }
             } else {
-                html += '<div class="adzone icon"></div>';
+                html += '<div class="adzone icon fa fa-square-o"></div>';
             }
             html += '<div adzoneid=' + adzones[i].id + ' siteid=' + adzones[i].sub[j].id + ' style="display: inline-block;">' + zonename + '</div>';
             html += '</div>';
@@ -90,7 +97,7 @@ function drawPopup(adzones) {
     menu.append($('<div class="separator"></div>'));
     menu.append($('<div class="item"><a href="">about</a></div>'));
     $('.adzone').click(function() {
-        $('.fa-check-square-o').attr('class', 'adzone icon');
+        $('.fa-check-square-o').attr('class', 'adzone icon fa fa-square-o');
         $(this).attr('class', 'adzone icon fa fa-check-square-o');
         localStorage['CurrentZone'] = $(this).next().html();
         localStorage['SelectedAdzoneId'] = $(this).next().attr('adzoneid');
