@@ -39,7 +39,7 @@ Rebate = {
         var c_rate = obj.commission_rate == null ? '0' :(obj.commission_rate/100).toFixed(2);
         var html = '<a href="' + c_url + '"> 返利' + c_rate + '%</a>';
         $('#dragbox').html(html);
-        $('#dragbox').attr('style','background-color: yellow; padding: 15px; border: 2px solid orange; width: 180px; cursor: move; position: absolute; z-index: 100000000; top: 250px; left: ' + width + 'px;');
+        $('#dragbox').attr('style','background-color: yellow; padding: 15px; border: 2px solid orange; width: 180px; cursor: move; position: absolute; z-index: 10000000000; top: 250px; left: ' + width + 'px;');
         $("#dragbox").draggable();
     },
     getItemId: function(url, key) {
