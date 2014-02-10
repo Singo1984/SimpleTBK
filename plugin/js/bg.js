@@ -22,11 +22,19 @@ function genNotify(icon, body, msg) {
     window.setTimeout(function(){ notification.cancel(); }, 3000);
 }
 
+if (!localStorage['TbToken'] || !localStorage['SelectedAdzoneId'] || !localStorage['SelectedSiteId']) {
+    loadAdzons();
+}
+
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.method == "alimamaLogin") {
         
     } else if (request.method == "getAuction") {
         //sendResponse({click_url: 'test', commission_rate: 6});
+        if (!localStorage['TbToken'] || !localStorage['SelectedAdzoneId'] || !localStorage['SelectedSiteId']) {
+            loadAdzons();
+        }
+        
         if (localStorage['SelectedAdzoneId'] && localStorage['SelectedSiteId'] && localStorage['TbToken']) {
             var xhr = new XMLHttpRequest();
             var itemid = request.itemid;

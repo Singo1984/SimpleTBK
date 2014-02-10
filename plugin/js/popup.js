@@ -19,7 +19,9 @@ function getCookie(url, name, _onGetTbToken, _drawPopup) {
         }
     });
     if (!findCookie) {
-        _drawPopup([]);
+        if (_drawPopup) {
+            _drawPopup([]);
+        }
         //genNotify('', 'No Cookie Found', 'Please login alimama');
     }
 }
@@ -50,10 +52,14 @@ function getAdZones(xhr, _drawPopup) {
                     adzones = adzones.concat(adZonesObj.data.webAdzones);
                 }
                 localStorage['AdZones'] = JSON.stringify(adzones);
-                _drawPopup(adzones);
+                if (_drawPopup) {
+                    _drawPopup(adzones);
+                }
             } else {
                 genNotify('', 'No AdZone Found', 'Please login alimama, and create your own adzones');
-                _drawPopup([])
+                if (_drawPopup) {
+                    _drawPopup([]);
+                }
             }
         }
     }
@@ -118,7 +124,9 @@ function loadAdzons(_drawPopup) {
     if (adZoneObjs.length == 0) {
         getCookie('http://pub.alimama.com', '_tb_token_', onGetTbToken, _drawPopup)
     } else {
-        _drawPopup(adZoneObjs)
+        if (_drawPopup) {
+            _drawPopup(adZoneObjs);
+        }
     }
 }
 
