@@ -89,6 +89,8 @@ function drawPopup(adzones) {
                     localStorage['SelectedAdzoneId'] = adzones[i].id;
                     localStorage['SelectedSiteId'] = adzones[i].sub[j].id;
                 }
+                var tmp = adzones[i].name.split('_');
+                localStorage['MemberId'] = tmp[tmp.length - 1];
             } else {
                 html += '<div class="adzone icon fa fa-square-o"></div>';
             }

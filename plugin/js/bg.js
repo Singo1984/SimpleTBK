@@ -31,6 +31,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         
     } else if (request.method == "getAuction") {
         //sendResponse({click_url: 'test', commission_rate: 6});
+        if (localStorage['MemberId'] && request.url.indexOf(localStorage['MemberId']) != -1) {
+            return;
+        }
         if (!localStorage['TbToken'] || !localStorage['SelectedAdzoneId'] || !localStorage['SelectedSiteId']) {
             loadAdzons();
         }

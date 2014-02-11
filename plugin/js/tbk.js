@@ -22,7 +22,7 @@ Rebate = {
         if(item_id === false) {
             return;
         }
-        chrome.runtime.sendMessage({method: "getAuction", itemid: item_id}, function(obj) {
+        chrome.runtime.sendMessage({method: "getAuction", itemid: item_id, url: url}, function(obj) {
             Rebate.initEasyDarg(obj);
         });
     },
@@ -78,9 +78,6 @@ Rebate = {
         var pattern = "^(http|https)://(item|item\\.beta|item\\.lp|ju|detail|chaoshi|spu|a.m)\\.(taobao|tmall)\\.com/";
         var matches = url.match(new RegExp(pattern, 'i'));
         if(matches) {
-            if(url.indexOf('ali_trackid=') != -1) {
-                return false;
-            }
             return matches[2];
         }
         return false;
